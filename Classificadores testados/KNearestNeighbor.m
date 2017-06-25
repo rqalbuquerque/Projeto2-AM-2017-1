@@ -26,10 +26,11 @@ accuracyKnn = 1:30;
 %     'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName',...
 %     'expected-improvement-plus','Optimizer',...
 %     'gridsearch','NumGridDivisions',...
-%     10))
+%     10,'MaxObjectiveEvaluations',100))
 
-knnModel = fitcknn(dados.data(1:4177,2:8),Y,'ClassNames',classNames,'Distance','euclidean','ResponseName',responseName,'PredictorNames',predictorNames,'Standardize',1,'NumNeighbors',31); %22 melhor acurácia
-
+knnModel = fitcknn(dados.data(1:4177,2:8),Y,'ClassNames',classNames,'Distance','mahalanobis','ResponseName',responseName,'PredictorNames',predictorNames,'DistanceWeight','inverse','Standardize',1,'NumNeighbors',30); %22 melhor acurácia
+% knnModel = fitcknn(dados.data(1:4177,2:8),Y,'ClassNames',classNames,'Distance','cityblock','ResponseName',responseName,'PredictorNames',predictorNames,'DistanceWeight','squaredinverse','Standardize',1,'NumNeighbors',163); %22 melhor acurácia
+%knnModel = fitcknn(dados.data(1:4177,2:8),Y,'ClassNames',classNames,'Distance','mahalanobis','ResponseName',responseName,'PredictorNames',predictorNames,'DistanceWeight','squaredinverse','Standardize',1,'NumNeighbors',70); %22 melhor acurácia
 minTimeTrain = Inf;
 minTimePredict = Inf;
 %Loop para 30 repeated 10-fold cross validation

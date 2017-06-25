@@ -24,13 +24,11 @@ accuracySvm = 1:30;
 %Obtendo os melhores parâmetros da Knn
 % Mdl = fitcecoc(dados.data(1:4177,1:8), Y,'OptimizeHyperparameters',{'BoxConstraint','KernelFunction','Standardize'},...
 %     'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName',...
-%     'expected-improvement-plus','Optimizer',...
-%     'gridsearch','NumGridDivisions',...
-%     10))
+%     'expected-improvement-plus'))
 
 % Modelo SVM multiclass (one-versus-one)
 %t is a template object that contains options for SVM classification. 
-t = templateSVM('Standardize',1,'SaveSupportVectors',true);
+t = templateSVM('Standardize',1,'SaveSupportVectors',true,'KernelFunction','polynomial','BoxConstraint',0.021387);
 svmModel = fitcecoc(dados.data(1:4177,1:8), Y,'Learners',t,'ResponseName',responseName,'PredictorNames',predictorNames,'ClassNames',classNames);
 
 minTimeTrain = Inf;
@@ -54,7 +52,7 @@ for i = 1:30
     telapsed = toc(tstart);
     minTimePredict = min(telapsed,minTimePredict);
     %Finish Predict 
-  
+    fprintf('Ite: %d \n',i );
     accuracySvm(i) = sum(Y==predict)/ numel(Y);
 end
 
