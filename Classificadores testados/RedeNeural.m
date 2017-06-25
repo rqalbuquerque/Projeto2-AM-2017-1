@@ -1,6 +1,6 @@
 %Lendo os dados das views
 %Dados das planilhas foram colocados em ordem de acordo com a classes
-dados_order = 'D:\\UFPE\\Mestrado\\2017.1\\Aprendizagem de Máquina\\Cleber\\Projeto\\abalone_Data_Order_3_Class.csv';
+dados_order = '..\\Base de dados\\abalone_Data_Order_3_Class.csv';
 delimiterIn = ';';
 headerlinesIn = 1;
 dados = importdata(dados_order,delimiterIn,headerlinesIn);
