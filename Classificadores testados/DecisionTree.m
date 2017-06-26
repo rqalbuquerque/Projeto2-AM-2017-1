@@ -28,7 +28,7 @@ accuracyTree = 1:30;
 %     'gridsearch','NumGridDivisions',...
 %     10))
 
-treeModel = fitctree(dados.data(1:4177,1:8),Y,'ResponseName',responseName,'PredictorNames',predictorNames,'ClassNames',classNames);
+treeModel = fitctree(dados.data(1:4177,1:8),Y,'ResponseName',responseName,'PredictorNames',predictorNames,'ClassNames',classNames,'MinLeafSize',70,'SplitCriterion','deviance');
 
 minTimeTrain = Inf;
 minTimePredict = Inf;
