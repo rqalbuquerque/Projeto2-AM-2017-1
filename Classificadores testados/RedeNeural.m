@@ -1,6 +1,6 @@
 %Opcao de execução 
-GET_BEST_PARAMETERS = 1;
-GET_TIME_AND_ACC = 0;
+GET_BEST_PARAMETERS = 0;
+GET_TIME_AND_ACC = 1;
 
 %Lendo os dados das views
 %Dados das planilhas foram colocados em ordem de acordo com a classes
@@ -43,11 +43,11 @@ if GET_BEST_PARAMETERS
     end
 
     %Parametros de teste
-    paramLenLayer1 = [10];
-    paramLenLayer2 = [10];
-    paramEpochs = [5000];
-    paramLearnRate = [0.05];
-    paramTransFcn = {'tansig'};
+    paramLenLayer1 = [2 4 6 10];
+    paramLenLayer2 = [0 2 4 6];
+    paramEpochs = [1000 2000 4000 5000];
+    paramLearnRate = [0.01 0.05 0.1];
+    paramTransFcn = {'logsig' 'tansig'};
 
     %Escolha dos melhores parametros
     count = 0;
@@ -110,5 +110,76 @@ if GET_BEST_PARAMETERS
     bestTransfFunc = transfFunc;
     save bestParamNN bestAcc bestLayers bestLearnRat bestNEpochas bestTransfFunc
 
+elseif GET_TIME_AND_ACC
+   
+    %Declaração dos vetores
+    clear accuracyRna
+    accuracyRna = 1:30;
+    
+    minTimeTrain = Inf;
+    minTimePredict = Inf;
+    
+    count = 0;
+    
+    %Loop para 30 repeated 10-fold cross validation
+    for i = 1:30
+        
+        %Gera uma partição
+        cv = cvpartition(length(x),'kfold',k);
+        for f=1:k
+            trainIdxs{f} = find(training(cv,f));
+            testIdxs{f}  = find(test(cv,f));
+        end
+        
+        % melhores parametros
+        nLayers = [10];
+        nEpochas = [5000];
+        learnRate = [0.05];
+        transfFunc = 'tansig';
+        
+        minTimeTrainCount = 0;
+        minTimePredictCount = 0;
+        
+        totalAcc = 0;
+        for f=1:k 
+            
+            netModel = patternnet(nLayers, 'traingd');
+            netModel.trainParam.epochs = nEpochas;
+            netModel.trainParam.lr = learnRate;
+            netModel.layers{1}.transferFcn = transfFunc; 
+
+            netModel.trainParam.showWindow = 0;
+            
+            %Start Train 
+            tstart = tic;
+            net = train(netModel, x(:,trainIdxs{f}), mat(:,trainIdxs{f}));
+            telapsed = toc(tstart);
+            minTimeTrainCount = minTimeTrainCount + telapsed;
+            %Finish Train
+            
+            %Start Predict 
+            tstart = tic;
+            nnResult = vec2ind(net(x(:,testIdxs{f})));
+            telapsed = toc(tstart);
+            minTimePredictCount = minTimePredictCount + telapsed;
+            %Finish Predict 
+            
+            orResult = vec2ind(mat(:,testIdxs{f}));
+            accuracy = sum(nnResult==orResult)/ numel(nnResult);
+            totalAcc = totalAcc + accuracy;
+        end
+        
+        minTimeTrain = min(minTimeTrainCount,minTimeTrain);
+        minTimePredict = min(minTimePredictCount,minTimePredict);
+        accuracyRna(i) = totalAcc/k;
+
+        count = count + 1
+    end
 end
-end
+
+% %Média da acurácia após o 30 repeated 10-fold cross validation
+accuracyRnaAfterkfold = sum(accuracyRna)/30;
+fprintf('Accuracy: %f%% \n',accuracyRnaAfterkfold );
+fprintf('Train Time: %f s\n',minTimeTrain );
+fprintf('Predict Time: %f s\n',minTimePredict );
+save results_svm accuracyRna accuracyRnaAfterkfold minTimeTrain minTimePredict
