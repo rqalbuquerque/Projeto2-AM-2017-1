@@ -43,7 +43,7 @@ if TEST_KNN_PARAMETERS == 1
     minTimePredict = Inf;
     
     %Loop para 30 repeated 10-fold cross validation
-    for i = 1:30
+    for i = 11:20
         
         % Para gerar sempre os mesmos folds
         rng(i);
@@ -85,9 +85,15 @@ if TEST_KNN_PARAMETERS == 1
         accuracyKnn(i) = totalAcc/kfolds;
 
         count = count + 1
+        
 
     end
 end
 
 disp('Knn Accuracy');
 mean(accuracyKnn)
+accuracyKnnAfterkfold = sum(accuracyKnn)/30;
+fprintf('Accuracy: %f%% \n',accuracyKnnAfterkfold );
+fprintf('Train Time: %f s\n',minTimeTrain );
+fprintf('Predict Time: %f s\n',minTimePredict );
+save results_knn accuracyKnn accuracyKnnAfterkfold minTimeTrain minTimePredict
