@@ -32,8 +32,15 @@ treeModel = fitctree(dados.data(1:4177,1:8),Y,'ResponseName',responseName,'Predi
 
 minTimeTrain = Inf;
 minTimePredict = Inf;
+
+% Para gerar sempre os folds certos
+rng('default');
+
 %Loop para 30 repeated 10-fold cross validation
 for i = 1:30
+    % Para gerar sempre os mesmos folds
+    rng(i);
+    
     %Particionamento com estratificação dos dados
     stratifiedKfold = cvpartition(Y,'KFold',10);
     
@@ -60,3 +67,4 @@ accuracyTreeAfterkfold = sum(accuracyTree)/30;
 fprintf('Accuracy: %f%% \n',accuracyTreeAfterkfold );
 fprintf('Train Time: %f s\n',minTimeTrain );
 fprintf('Predict Time: %f s\n',minTimePredict );
+save results_decision_tree accuracyTree accuracyTreeAfterkfold minTimeTrain minTimePredict

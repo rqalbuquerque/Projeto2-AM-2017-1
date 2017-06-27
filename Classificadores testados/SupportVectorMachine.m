@@ -33,8 +33,15 @@ svmModel = fitcecoc(dados.data(1:4177,1:8), Y,'Learners',t,'ResponseName',respon
 
 minTimeTrain = Inf;
 minTimePredict = Inf;
+
+% Para gerar sempre os folds certos
+rng('default');
+
 %Loop para 30 repeated 10-fold cross validation
 for i = 1:30
+    % Para gerar sempre os mesmos folds
+    rng(i);
+    
     %Particionamento com estratificação dos dados
     stratifiedKfold = cvpartition(Y,'KFold',10);
     
@@ -57,7 +64,8 @@ for i = 1:30
 end
 
 % %Média da acurácia após o 30 repeated 10-fold cross validation
- accuracySvmAfterkfold = sum(accuracySvm)/30;
+accuracySvmAfterkfold = sum(accuracySvm)/30;
 fprintf('Accuracy: %f%% \n',accuracySvmAfterkfold );
 fprintf('Train Time: %f s\n',minTimeTrain );
 fprintf('Predict Time: %f s\n',minTimePredict );
+save results_svm accuracySvm accuracySvmAfterkfold minTimeTrain minTimePredict

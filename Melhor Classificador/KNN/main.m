@@ -89,5 +89,10 @@ if TEST_KNN_PARAMETERS == 1
     end
 end
 
-disp('Knn Accuracy');
-mean(accuracyKnn)
+
+% %Média da acurácia após o 30 repeated 10-fold cross validation
+accuracyKnnAfterkfold = sum(accuracyKnn)/30;
+fprintf('Accuracy: %f%% \n',accuracyKnnAfterkfold );
+fprintf('Train Time: %f s\n',minTimeTrain );
+fprintf('Predict Time: %f s\n',minTimePredict );
+save results_knn accuracyKnn accuracyKnnAfterkfold minTimeTrain minTimePredict

@@ -121,8 +121,13 @@ elseif GET_TIME_AND_ACC
     
     count = 0;
     
+    % Para gerar sempre os folds certos
+    rng('default');
+
     %Loop para 30 repeated 10-fold cross validation
     for i = 1:30
+        % Para gerar sempre os mesmos folds
+        rng(i);
         
         %Gera uma partição
         cv = cvpartition(length(x),'kfold',k);
@@ -182,4 +187,4 @@ accuracyRnaAfterkfold = sum(accuracyRna)/30;
 fprintf('Accuracy: %f%% \n',accuracyRnaAfterkfold );
 fprintf('Train Time: %f s\n',minTimeTrain );
 fprintf('Predict Time: %f s\n',minTimePredict );
-save results_svm accuracyRna accuracyRnaAfterkfold minTimeTrain minTimePredict
+save results_rna accuracyRna accuracyRnaAfterkfold minTimeTrain minTimePredict

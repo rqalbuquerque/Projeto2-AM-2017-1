@@ -33,11 +33,18 @@ knnModel = fitcknn(dados.data(1:4177,2:8),Y,'ClassNames',classNames,'Distance','
 %knnModel = fitcknn(dados.data(1:4177,2:8),Y,'ClassNames',classNames,'Distance','mahalanobis','ResponseName',responseName,'PredictorNames',predictorNames,'DistanceWeight','squaredinverse','Standardize',1,'NumNeighbors',70); %22 melhor acurácia
 minTimeTrain = Inf;
 minTimePredict = Inf;
+
+% Para gerar sempre os folds certos
+rng('default');
+
 %Loop para 30 repeated 10-fold cross validation
 for i = 1:30
+    % Para gerar sempre os mesmos folds
+    rng(i);
+    
     %Particionamento com estratificação dos dados
     stratifiedKfold = cvpartition(Y,'KFold',10);
-    
+
     %Start Train 
     tstart = tic;
     % Cross validation 10-fold knn
@@ -61,3 +68,4 @@ accuracyKnnAfterkfold = sum(accuracyKnn)/30;
 fprintf('Accuracy: %f%% \n',accuracyKnnAfterkfold );
 fprintf('Train Time: %f s\n',minTimeTrain );
 fprintf('Predict Time: %f s\n',minTimePredict );
+save results_knn accuracyKnn accuracyKnnAfterkfold minTimeTrain minTimePredict
