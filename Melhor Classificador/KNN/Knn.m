@@ -10,9 +10,11 @@ classdef Knn
         % train examples
         X = [];
         Y = [];
-        maxValues = [];
-        minValues = [];
+        meanValues = [];
+        stdValues = [];
         nSamples = 0;
+		C = [];
+		invC = [];
    end 
    
    methods
@@ -32,22 +34,27 @@ classdef Knn
             
             obj.nSamples = size(x,1);
             
-            obj.maxValues = max(x);
-            obj.minValues = min(x);
-            
             obj.Y = y;
             obj.X = x;
             
-            if obj.normOption
-                normX = x - ones(obj.nSamples,1)*obj.minValues;
-                obj.X = normX ./ (ones(obj.nSamples,1)*(obj.maxValues-obj.minValues));
+            if obj.normOption || strcmp(obj.distanceName, 'mahalanobis')
+				%obj.meanValues = mean(x);
+				%obj.stdValues = std(x);
+                %normX = x - ones(obj.nSamples,1)*obj.meanValues;
+                %obj.X = normX ./ (ones(obj.nSamples,1)*(obj.stdValues));
+				[obj.X,obj.meanValues,obj.stdValues] = zscore(x);
+				obj.C = nancov(obj.X);
+				obj.invC = pinv(obj.C);
             end
         end
         
         function d = calcDist(obj, x1, x2)
 
             if strcmp(obj.distanceName,'mahalanobis')
-                %d = mahal(x1,x2);
+                d = zeros(size(x1,1),1);
+                for i=1:size(x1,1)
+                    d(i) = sqrt((x1(i,:)-x2(i,:))*obj.invC*((x1(i,:)-x2(i,:))'));
+                end
             elseif strcmp(obj.distanceName,'euclidean')
                 d = sqrt(sum((x1-x2).^2,2));
             end
@@ -67,7 +74,7 @@ classdef Knn
                 normSample = samples(i,:);
                 
                 if obj.normOption
-                    normSample = (samples(i,:)-obj.minValues) ./ (obj.maxValues-obj.minValues);
+                    normSample = (samples(i,:)-obj.meanValues) ./ (obj.stdValues);
                 end
                 
                 % get k nearest neighbor

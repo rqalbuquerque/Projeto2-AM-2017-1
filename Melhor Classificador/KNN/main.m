@@ -19,25 +19,34 @@ tabulate(Y);
 
 %Declaração dos vetores
 clear accuracyKnn
-accuracyKnn = 1:30;
+accuracyKnn = zeros(1,30);
 
 %Num. de folds utilizados
 kfolds = 10;
-timesToRun = 30;
 count = 0;
 
-if TEST_KNN_PARAMETERS
+if TEST_KNN_PARAMETERS == 1
 
     %Parametros de teste
     k = 30;
-    distanceName = 'euclidean';
+    distanceName = 'mahalanobis';
     distanceWeight = 'inverse';
     normOption = 1;
-    
+
     % knn
     mdlKnn = Knn(k,distanceName,distanceWeight,normOption);  
+    
+    % Para gerar sempre os folds certos
+    rng('default');
 
-    for i=1:timesToRun
+    minTimeTrain = Inf;
+    minTimePredict = Inf;
+    
+    %Loop para 30 repeated 10-fold cross validation
+    for i = 1:30
+        
+        % Para gerar sempre os mesmos folds
+        rng(i);
 
         %Gera uma partição
         cv = cvpartition(length(X),'kfold',kfolds);
@@ -46,19 +55,37 @@ if TEST_KNN_PARAMETERS
             testIdxs{j}  = find(test(cv,j));
         end
 
+        minTimeTrainCount = 0;
+        minTimePredictCount = 0;
+        
         totalAcc = 0;
-        for j=1:kfolds    
+        for j=1:kfolds   
+            
+            %Start Train 
+            tstart = tic;
             mdlKnn = mdlKnn.train(X(trainIdxs{j},:),Y(trainIdxs{j},:));
+            telapsed = toc(tstart);
+            minTimeTrainCount = minTimeTrainCount + telapsed;
+            %Finish Train
+            
+            %Start Predict 
+            tstart = tic;
             knnResult = mdlKnn.predict(X(testIdxs{j},:));
+            telapsed = toc(tstart);
+            minTimePredictCount = minTimePredictCount + telapsed;
+            %Finish Predict 
+            
             oriResult = Y(testIdxs{j},:);
             accuracy = mean(knnResult==oriResult);
             totalAcc = totalAcc + accuracy;
         end
-        accuracy = totalAcc/kfolds
+        
+        minTimeTrain = min(minTimeTrainCount,minTimeTrain);
+        minTimePredict = min(minTimePredictCount,minTimePredict);
+        accuracyKnn(i) = totalAcc/kfolds;
 
         count = count + 1
-        
-        accuracyKnn(i) = accuracy;
+
     end
 end
 
